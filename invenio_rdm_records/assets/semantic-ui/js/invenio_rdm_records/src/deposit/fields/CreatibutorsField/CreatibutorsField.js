@@ -51,7 +51,7 @@ class CreatibutorsFieldForm extends Component {
 
   render() {
     const {
-      form: { values, errors, initialErrors, initialValues },
+      form: { values, errors, warnings, initialErrors, initialValues },
       remove: formikArrayRemove,
       replace: formikArrayReplace,
       move: formikArrayMove,
@@ -72,26 +72,32 @@ class CreatibutorsFieldForm extends Component {
     const initialError = getIn(initialErrors, fieldPath, null);
     const creatibutorsError =
       error || (creatibutorsList === formikInitialValues && initialError);
+    console.log({ warnings });
+    console.log({ errors });
+    console.log({ error });
+    console.log({ creatibutorsError });
+    let className = "";
+    if (creatibutorsError) {
+      className =
+        typeof creatibutorsError !== "string" ? creatibutorsError.severity : "error";
+    }
+    // eslint-disable-next-line
+    // debugger;
 
     return (
       <DndProvider backend={HTML5Backend}>
-        <Form.Field
-          required={schema === "creators"}
-          className={creatibutorsError ? "error" : ""}
-        >
+        <Form.Field required={schema === "creators"} className={className}>
           <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
           <List>
             {creatibutorsList.map((value, index) => {
               const key = `${fieldPath}.${index}`;
-              const identifiersError =
-                creatibutorsError &&
-                creatibutorsError[index]?.person_or_org?.identifiers;
               const displayName = creatibutorNameDisplay(value);
 
               return (
                 <CreatibutorsFieldItem
                   key={key}
-                  identifiersError={identifiersError}
+                  // TODO: Call it "error"?
+                  creatibutorError={creatibutorsError && creatibutorsError[index]}
                   {...{
                     displayName,
                     index,
@@ -128,6 +134,11 @@ class CreatibutorsFieldForm extends Component {
           {creatibutorsError && typeof creatibutorsError == "string" && (
             <Label pointing="left" prompt>
               {creatibutorsError}
+            </Label>
+          )}
+          {creatibutorsError && typeof creatibutorsError != "string" && (
+            <Label pointing="left" prompt>
+              {creatibutorsError.message}
             </Label>
           )}
         </Form.Field>

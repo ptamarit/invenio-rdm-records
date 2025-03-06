@@ -21,9 +21,10 @@ const BASE_HEADERS = {
  * API client response.
  */
 export class DepositApiClientResponse {
-  constructor(data, errors) {
+  constructor(data, errors, warnings) {
     this.data = data;
     this.errors = errors;
+    this.warnings = warnings;
   }
 }
 
@@ -101,15 +102,24 @@ export class RDMDepositApiClient extends DepositApiClient {
       const errors = this.recordSerializer.deserializeErrors(
         response.data.errors || []
       );
-      return new DepositApiClientResponse(data, errors);
+      const warnings = this.recordSerializer.deserializeWarnings(
+        response.data.errors || []
+      );
+      console.log(`DepositApiClientResponse return: ${warnings}`);
+      console.log({ warnings });
+      return new DepositApiClientResponse(data, errors, warnings);
     } catch (error) {
       let errorData = error.response.data;
       const errors = this.recordSerializer.deserializeErrors(
         error.response.data.errors || []
       );
+      const warnings = this.recordSerializer.deserializeWarnings(
+        error.response.data.errors || []
+      );
       // this is to serialize raised error from the backend on publish
       if (errors) errorData = errors;
-      throw new DepositApiClientResponse({}, errorData);
+      console.log(`DepositApiClientResponse throw: ${warnings}`);
+      throw new DepositApiClientResponse({}, errorData, warnings);
     }
   }
 

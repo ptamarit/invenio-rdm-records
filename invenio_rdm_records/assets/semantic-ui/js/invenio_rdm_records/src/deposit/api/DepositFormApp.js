@@ -41,6 +41,8 @@ export class DepositFormApp extends Component {
     const apiHeaders = props.config.apiHeaders ? props.config.apiHeaders : null;
     const additionalApiConfig = { headers: apiHeaders };
 
+    // TODO: Allow publish if only warnings.
+
     const apiClient = props.apiClient
       ? props.apiClient
       : new RDMDepositApiClient(

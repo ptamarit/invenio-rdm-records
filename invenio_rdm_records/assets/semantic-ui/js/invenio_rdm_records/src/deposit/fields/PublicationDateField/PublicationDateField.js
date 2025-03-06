@@ -16,6 +16,8 @@ export class PublicationDateField extends Component {
   render() {
     const { fieldPath, helpText, label, labelIcon, placeholder, required } = this.props;
 
+    console.log({ fieldPath });
+
     return (
       <TextField
         fieldPath={fieldPath}

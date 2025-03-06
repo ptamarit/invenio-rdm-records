@@ -11,6 +11,7 @@ import _join from "lodash/join";
 export class DepositErrorHandler {
   /* eslint-disable-next-line no-unused-vars */
   extractErrors(error, record) {
+    console.log(`extractErrors: ${error}`);
     const backendErrors = _get(error, "response.data.errors", []);
     const backendErrorMessage = _get(error, "response.data.message", "");
     let frontendErrors = { message: backendErrorMessage };

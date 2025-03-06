@@ -102,7 +102,11 @@ class DepositBootstrapComponent extends Component {
       await actionFunc(values, params);
     } catch (error) {
       // make sure the error contains form errors, and not global errors.
-      if (error && error.errors) {
+      if (error && (error.errors || error.warnings)) {
+        console.log(`formikBag: ${error.errors}, ${error.warnings}`);
+        const errorsAndWarnings = { ...error.errors, ...error.warnings };
+        console.log({ errorsAndWarnings });
+        // formikBag.setErrors(errorsAndWarnings);
         formikBag.setErrors(error.errors);
       } else {
         // scroll top to show the global error
@@ -115,7 +119,9 @@ class DepositBootstrapComponent extends Component {
   };
 
   render() {
-    const { errors, record, children } = this.props;
+    // TODO: Do something with warnings here?
+    const { errors, warnings, record, children } = this.props;
+    console.log(`DepositBootstrapComponent.render: ${warnings}`);
     return (
       <DepositFormSubmitContext.Provider
         value={{ setSubmitContext: this.setSubmitContext }}
@@ -144,6 +150,7 @@ class DepositBootstrapComponent extends Component {
 
 DepositBootstrapComponent.propTypes = {
   errors: PropTypes.object,
+  warnings: PropTypes.object,
   record: PropTypes.object.isRequired,
   children: PropTypes.node,
   saveAction: PropTypes.func.isRequired,
@@ -158,6 +165,7 @@ DepositBootstrapComponent.propTypes = {
 
 DepositBootstrapComponent.defaultProps = {
   errors: undefined,
+  warnings: undefined,
   children: undefined,
   fileUploadOngoing: false,
 };
@@ -167,6 +175,7 @@ const mapStateToProps = (state) => {
   return {
     record: state.deposit.record,
     errors: state.deposit.errors,
+    warnings: state.deposit.warnings,
     formState: state.deposit.formState,
     fileUploadOngoing: isFileUploadInProgress,
     files: files,
