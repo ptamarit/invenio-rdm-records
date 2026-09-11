@@ -6,7 +6,7 @@
 """Signposting schemas."""
 
 import re
-import urllib
+from urllib.parse import SplitResult, parse_qsl, quote, urlencode, urlsplit
 
 import idutils
 from invenio_base import invenio_url_for
@@ -122,7 +122,6 @@ class LandingPageSchema(Schema):
 
         Note that we provide an entry for each license (rather than just 1).
         """
-        rights = obj["metadata"].get("rights", [])
 
         def extract_link(right):
             """Return link associated with right.
@@ -141,13 +140,18 @@ class LandingPageSchema(Schema):
                 return right["props"].get("url")
 
         def percent_encode(url):
-            url_parts = urllib.parse.urlsplit(url)
-            url_parts = url_parts._replace(path=urllib.parse.quote(url_parts.path))
-            url_parts = url_parts._replace(
-                query=urllib.parse.urlencode(urllib.parse.parse_qsl(url_parts.query))
+            """Return the percent-encoded, Link-header-compatible URL."""
+            url_parts = urlsplit(url)
+            result = SplitResult(
+                scheme=url_parts.scheme,
+                netloc=url_parts.netloc,
+                path=quote(url_parts.path),
+                query=urlencode(parse_qsl(url_parts.query)),
+                fragment=url_parts.fragment,
             )
-            return url_parts.geturl()
+            return result.geturl()
 
+        rights = obj["metadata"].get("rights", [])
         result = [extract_link(right) for right in rights]
         result = [{"href": percent_encode(link)} for link in result if link]
         return result or missing
